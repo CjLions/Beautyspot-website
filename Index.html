@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beauty Spot - Weekly Commission</title>
+<link rel="stylesheet" href="my-salon.css">
+</head>
+<body>
+
+<header>
+  <h1>💇‍♀️ Beauty Spot 😘</h1>
+  <p>Weekly Commission Tracker • Owner: Rachael • Lunch for Everyone</p>
+  <p style="font-size:13px; opacity:0.9;">📅 All months are saved forever - view October in January!</p>
+</header>
+
+<main>
+  <!-- ADD / EDIT CUSTOMER -->
+  <section class="card">
+    <h2 id="formTitle">Add Customer</h2>
+    <p id="editingBanner" style="display:none; background:#fff8e1; border:1px solid #ffca28; padding:10px; border-radius:8px; font-weight:bold;">✏️ Editing: <span id="editingName"></span></p>
+    <form id="customerForm">
+      <label>Worker</label>
+      <select id="worker" required>
+        <option value="Dorine">Dorine - Staff (50%)</option>
+        <option value="Rachael">Rachael - Owner (100% to Salon)</option>
+        <option value="Betty">Betty - Staff (50%)</option>
+        <option value="Kemy">Kemy - Staff (50%)</option>
+      </select>
+      <label>Customer Name</label>
+      <input type="text" id="customerName" placeholder="e.g. Laura" required>
+      <label>Services - Tick ALL services this customer got</label>
+      <div class="services-list" id="servicesList">
+        <div class="service-row"><label class="service-check"><input type="checkbox" value="Hair Braiding" class="service-checkbox"> Hair Braiding</label><input type="number" class="service-price" data-service="Hair Braiding" placeholder="Negotiate price" min="1" disabled></div>
+        <div class="service-row"><label class="service-check"><input type="checkbox" value="Makeup" class="service-checkbox"> Makeup</label><input type="number" class="service-price" data-service="Makeup" placeholder="1000 Fixed" min="1" disabled></div>
+        <div class="service-row"><label class="service-check"><input type="checkbox" value="Wig Installation" class="service-checkbox"> Wig Installation</label><input type="number" class="service-price" data-service="Wig Installation" placeholder="Depends on wig" min="1" disabled></div>
+        <div class="service-row"><label class="service-check"><input type="checkbox" value="Manicure / Pedicure" class="service-checkbox"> Manicure / Pedicure</label><input type="number" class="service-price" data-service="Manicure / Pedicure" placeholder="Negotiate price" min="1" disabled></div>
+        <div class="service-row"><label class="service-check"><input type="checkbox" value="Facial" class="service-checkbox"> Facial</label><input type="number" class="service-price" data-service="Facial" placeholder="Negotiate price" min="1" disabled></div>
+        <div class="service-row"><label class="service-check"><input type="checkbox" value="Other" class="service-checkbox"> Other</label><input type="number" class="service-price" data-service="Other" placeholder="Negotiate price" min="1" disabled></div>
+      </div>
+      <small style="color:#c2185b; font-weight:bold;">Tick a service, then type its price. Makeup is always 1000.</small>
+      <label>Total Amount Paid (KSh) - Auto Calculated</label>
+      <input type="number" id="amount" placeholder="Total will add up automatically" readonly required>
+      <small id="totalBreakdown" style="color:#666;"></small>
+      <label>Date</label>
+      <input type="date" id="date" required>
+      <button type="submit" id="submitBtn">+ Add Customer</button>
+      <button type="button" id="cancelEditBtn" style="display:none; background:#666;">Cancel Edit</button>
+    </form>
+  </section>
+
+  <!-- WEEKLY SUMMARY - UNPAID ONLY -->
+  <section class="card">
+    <h2>Weekly Pay - This Week (Unpaid Only)</h2>
+    <p class="hint">When you pay, press "Mark This Week As Paid" — customers stay in All Customers & Months, but disappear from here.</p>
+    <div class="summary-grid" id="summaryGrid"></div>
+    <div class="totals">
+      <p><strong>Total Collected (Unpaid):</strong> <span id="totalCollected">KSh 0</span></p>
+      <p><strong>To Pay Staff:</strong> <span id="totalToPay">KSh 0</span></p>
+      <p><strong>Goes To Salon:</strong> <span id="salonKeeps">KSh 0</span></p>
+    </div>
+    <div class="actions">
+      <button id="printBtn" class="secondary">🖨️ Print / Save Payslip</button>
+      <button id="clearWeekBtn" class="danger">✅ Mark This Week As Paid</button>
+    </div>
+  </section>
+
+  <!-- ALL CUSTOMERS - WITH MONTH FILTER - STAYS FOREVER -->
+  <section class="card wide">
+    <h2>All Customers - All Months Stay Forever</h2>
+    <div class="filter" style="flex-wrap:wrap;">
+      <label>Filter by Worker:</label>
+      <select id="filterWorker">
+        <option value="ALL">All Workers</option>
+        <option value="Dorine">Dorine</option>
+        <option value="Rachael">Rachael (Owner)</option>
+        <option value="Betty">Betty</option>
+        <option value="Kemy">Kemy</option>
+      </select>
+      <label>Filter by Month:</label>
+      <select id="filterMonth">
+        <option value="ALL">All Months</option>
+        <option value="CURRENT">This Month</option>
+      </select>
+      <label>Show:</label>
+      <select id="filterPaid">
+        <option value="ALL">All (Paid + Unpaid)</option>
+        <option value="UNPAID">Unpaid Only</option>
+        <option value="PAID">Paid Only</option>
+      </select>
+    </div>
+    <p id="monthInfo" class="hint"></p>
+    <table>
+      <thead><tr><th>Date</th><th>Worker</th><th>Customer</th><th>Service(s)</th><th>Paid</th><th>Worker Gets</th><th>Salon Gets</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="recordsTable"></tbody>
+    </table>
+    <p id="noRecords">No customers yet. Add one above.</p>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section class="card wide leaderboard">
+    <h2>🏆 All-Time Leaderboard - Staff Only (No Owner)</h2>
+    <p class="hint">Dorine, Betty, Kemy only. Most earned at top.</p>
+    <div id="leaderboardList"></div>
+    <div class="totals" style="margin-top:12px;">
+      <p><strong>Total Ever Collected:</strong> <span id="allTimeCollected">KSh 0</span></p>
+      <p><strong>Total Ever Paid to Staff:</strong> <span id="allTimePaid">KSh 0</span></p>
+      <p><strong>Total Ever To Salon:</strong> <span id="allTimeSalon">KSh 0</span></p>
+    </div>
+  </section>
+
+  <!-- MONTHLY -->
+  <section class="card wide monthly">
+    <h2>📊 Monthly Tracker & Profit - All Months Saved</h2>
+    <div class="month-boxes">
+      <div class="month-box"><small>This Month (<span id="currentMonthLabel"></span>)</small><div class="big" id="thisMonthIncome">KSh 0</div><small>Money To Salon (before expenses)</small></div>
+      <div class="month-box"><small>Last Month</small><div class="big" id="lastMonthIncome">KSh 0</div><small>Money To Salon</small></div>
+      <div class="month-box" id="trendBox"><small>Trend</small><div class="big" id="trendText">—</div><small id="trendDetail">No last month data yet</small></div>
+    </div>
+    <div class="profit-box">
+      <p><strong>This Month Expenses:</strong> <span id="thisMonthExpenses">KSh 0</span> | <strong>Profit So Far:</strong> <span id="thisMonthProfit">KSh 0</span></p>
+      <p><strong>Last Month Profit (after everything):</strong> <span id="lastMonthProfit">KSh 0</span></p>
+    </div>
+    <div class="actions">
+      <button id="viewLastMonthBtn" class="secondary">📅 View Last Month Details</button>
+      <button id="viewThisMonthBtn">📅 View This Month Details</button>
+    </div>
+    <div id="monthlyDetail" class="monthly-detail" style="display:none;"></div>
+    <label style="margin-top:12px; display:block;">📅 View ANY Month:</label>
+    <div class="actions">
+      <select id="anyMonthSelect" style="flex:1;"></select>
+      <button id="viewAnyMonthBtn">View That Month</button>
+    </div>
+    <div id="monthlyHistory"></div>
+  </section>
+
+  <!-- EXPENDITURE -->
+  <section class="card wide">
+    <h2 id="expenseFormTitle">💸 Company Expenditure</h2>
+    <p id="editingExpenseBanner" style="display:none; background:#fff8e1; border:1px solid #ffca28; padding:10px; border-radius:8px; font-weight:bold;">✏️ Editing Expense: <span id="editingExpenseName"></span></p>
+    <p class="hint">Lunch KSh 150 per person Mon-Fri • Voucher ONLY if leader passes KSh 30,000 • Rent, Electric, Water, Wax & Products</p>
+    <div class="filter" style="margin-bottom:10px;">
+      <label>Show Expenses For:</label>
+      <select id="filterExpenseMonth"><option value="ALL">All Months</option><option value="CURRENT">This Month</option></select>
+    </div>
+    <form id="expenseForm" class="expense-form">
+      <select id="expenseType" required>
+        <option value="Lunch">🍔 Lunch - KSh 150 per person</option>
+        <option value="Rent">🏠 Rent</option>
+        <option value="Electric">💡 Electric</option>
+        <option value="Water">💧 Water</option>
+        <option value="Products - Wax">🧴 Products - Wax</option>
+        <option value="Products - Salon Stuff">💇‍♀️ Products - Salon Stuff</option>
+        <option value="Voucher">🎁 Voucher - Leader over 30,000 only</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="number" id="expenseAmount" placeholder="Amount KSh" min="1" required>
+      <input type="text" id="expenseNote" placeholder="Note e.g. Rent for shop, Wax 2kg">
+      <input type="date" id="expenseDate" required>
+      <button type="submit" id="expenseSubmitBtn">+ Add Expense</button>
+    </form>
+    <button type="button" id="cancelExpenseEditBtn" style="display:none; background:#666; color:white; border:none; padding:11px; border-radius:8px; cursor:pointer; margin-top:8px; font-weight:bold; width:100%;">Cancel Edit</button>
+    <div class="actions">
+      <button id="addLunchWeekBtn" class="secondary">🍔 Add Lunch For This Week (Mon-Fri) - 4 people x 150 x 5 = KSh 3000</button>
+      <button id="addRentBtn" class="secondary">🏠 Add Rent KSh 30,000</button>
+    </div>
+    <div id="voucherStatus" class="voucher-box"></div>
+    <table>
+      <thead><tr><th>Date</th><th>Type</th><th>Note</th><th>Amount</th><th>Action</th></tr></thead>
+      <tbody id="expenseTable"></tbody>
+    </table>
+    <p id="noExpenses">No expenses yet this period.</p>
+    <div class="totals"><p><strong>Total Expenses (Shown):</strong> <span id="totalExpenses">KSh 0</span></p></div>
+  </section>
+
+  <!-- EMPLOYEE + CUSTOMER OF MONTH -->
+  <section class="card">
+    <h2>🏆 Employee of the Month - Staff Only</h2>
+    <div id="employeeOfMonth" class="winner-box">No data yet this month</div>
+    <p class="hint">Top staff earner. If she passes KSh 30,000 she gets a Voucher! Company buys lunch for everyone.</p>
+    <div id="employeeRanking"></div>
+  </section>
+
+  <section class="card">
+    <h2>👑 Customer of the Month</h2>
+    <div id="customerOfMonth" class="winner-box gold">No data yet this month</div>
+    <p class="hint">Customer who paid most. Leading customer gets FREE SHOPPING 🛍️</p>
+    <h3>🥤 Regular Customers - Free Soda!</h3>
+    <div id="regularCustomers">No regulars yet. A customer needs 3+ visits.</div>
+  </section>
+</main>
+
+<!-- DELETE WITH PASSWORD -->
+<section class="reset-zone">
+  <h2>🔒 Danger Zone - Password Protected</h2>
+  <p>This deletes EVERYTHING - all months, weekly pay, monthly history, leaderboard, expenses, all customers - and starts Beauty Spot from zero.</p>
+  <p style="font-size:13px; color:#888;">Password required. Only Rachael should know it.</p>
+  <input type="password" id="deletePassword" placeholder="Enter Delete Password" style="max-width:400px; padding:12px; border:1px solid #e53935; border-radius:8px; width:100%; text-align:center;">
+  <br>
+  <button id="resetAllBtn">🗑️ DELETE EVERYTHING & START NEW</button>
+  <p class="hint">Forgot password? It is in my-salon.js - search DELETE_PASSWORD. Default: Beauty123</p>
+</section>
+
+<footer><p>Beauty Spot 😘 • Dorine, Betty, Kemy = 50% • Rachael's work goes to Salon • Makeup = KSh 1000 Fixed • Lunch for Everyone • Months Never Deleted</p></footer>
+<script src="my-salon.js"></script>
+</body>
+</html>
